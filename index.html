@@ -261,6 +261,14 @@
   .card.playing .card-play{ opacity:0; transform:scale(.7); pointer-events:none; }
   .card-play svg{ width:20px; height:20px; fill:var(--cream); margin-inline-start:3px; }
 
+  .card.load-failed .card-play{ opacity:.4; }
+  .card.load-failed::after{
+    content:'تعذّر تحميل المقطع، حاولي التحديث';
+    position:absolute; inset:auto 12px 14px 12px; z-index:4;
+    font-size:.72rem; color:var(--blush-soft); text-align:center;
+    background:rgba(16,20,58,.6); border-radius:10px; padding:.4em .6em;
+  }
+
   /* ---------- closing CTA ---------- */
   .closing{
     padding:9vh 6vw 12vh; text-align:center; position:relative;
@@ -516,12 +524,17 @@ items.forEach((it, idx)=>{
   card.style.transitionDelay = (idx*40)+'ms';
 
   const video = document.createElement('video');
-  video.src = it.v;
   video.poster = it.t;
   video.muted = false;
   video.loop = true;
   video.playsInline = true;
-  video.preload = 'none';
+  video.preload = 'metadata';
+  video.setAttribute('webkit-playsinline', '');
+
+  const source = document.createElement('source');
+  source.src = it.v;
+  source.type = 'video/mp4';
+  video.appendChild(source);
 
   const shade = document.createElement('div');
   shade.className='card-shade';
@@ -540,10 +553,25 @@ items.forEach((it, idx)=>{
   card.appendChild(play);
   grid.appendChild(card);
 
+  // Auto-retry once if the source fails to load (common transient issue
+  // on the first request to a video host like GitHub Pages).
+  let retried = false;
+  video.addEventListener('error', ()=>{
+    if(!retried){
+      retried = true;
+      const bust = it.v + '?retry=1&t=' + Date.now();
+      source.src = bust;
+      video.load();
+    } else {
+      card.classList.add('load-failed');
+    }
+  });
+
   card.addEventListener('click', ()=>{
     if(video.paused){
       document.querySelectorAll('.card video').forEach(v=>{ if(v!==video){ v.pause(); v.parentElement.classList.remove('playing'); }});
-      video.play();
+      const playPromise = video.play();
+      if(playPromise){ playPromise.catch(()=>{ video.load(); video.play().catch(()=>{}); }); }
       card.classList.add('playing');
     } else {
       video.pause();
