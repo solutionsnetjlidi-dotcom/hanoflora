@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كُلُّ مُرٍّ سَيَمُرُّ — غَدًا أَجْمَل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#1a2361;
+    --bg-deep2:#10143a;
+    --panel:#242d72;
+    --panel-edge:#4652a8;
+    --blush:#f6b9d6;
+    --blush-soft:#fbdcec;
+    --gold:#e3b876;
+    --gold-dim:#b8945e;
+    --cream:#faf3e8;
+    --moss:#b7bdec;
+    --moss-dim:#7580c4;
+    --shadow:0 20px 60px -20px rgba(6,8,30,.65);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg-deep);
+    color:var(--cream);
+    font-family:'Cairo',sans-serif;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ---------- ambient texture ---------- */
+  .grain{
+    position:fixed; inset:0; pointer-events:none; z-index:2; opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .vignette{
+    position:fixed; inset:0; pointer-events:none; z-index:1;
+    background:radial-gradient(ellipse at 50% 30%, transparent 40%, rgba(8,9,32,.55) 100%);
+  }
+
+  /* ---------- sparkles (purity / soul-clarity motif) ---------- */
+  .sparkle{
+    position:absolute; border-radius:50%;
+    background:radial-gradient(circle, #fff 0%, var(--gold) 45%, transparent 75%);
+    animation:twinkle ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.15; transform:scale(.7);}
+    50%{opacity:1; transform:scale(1.15);}
+  }
+
+  /* ---------- floating petals (ambient, whole page) ---------- */
+  .petals{position:fixed; inset:0; pointer-events:none; z-index:3; overflow:hidden;}
+  .petal{
+    position:absolute; top:-5%; width:14px; height:14px; opacity:.75;
+    background:radial-gradient(circle at 30% 30%, var(--blush-soft), var(--blush) 60%, transparent 75%);
+    border-radius:70% 30% 60% 40%/60% 40% 70% 30%;
+    animation:fall linear infinite;
+  }
+  @keyframes fall{
+    0%{transform:translateY(-10vh) translateX(0) rotate(0deg); opacity:0;}
+    8%{opacity:.8;}
+    92%{opacity:.6;}
+    100%{transform:translateY(110vh) translateX(var(--drift,40px)) rotate(300deg); opacity:0;}
+  }
+
+  section{position:relative; z-index:4;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100svh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding:8vh 6vw 10vh;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-bg-blur{
+    position:absolute; inset:0; z-index:0;
+    background-image:url('assets/bg-blur.jpg');
+    background-size:cover; background-position:center 30%;
+    opacity:.22; filter:saturate(.8);
+  }
+  .hero-bg-fade{
+    position:absolute; z-index:1; pointer-events:none;
+    top:-6%; left:50%; transform:translateX(-50%);
+    width:min(560px, 92vw); opacity:.5;
+    -webkit-mask-image:linear-gradient(to bottom, black 55%, transparent 96%);
+            mask-image:linear-gradient(to bottom, black 55%, transparent 96%);
+  }
+  .hero-bg-fade img{width:100%; display:block;}
+  .hero-scrim{
+    position:absolute; inset:0; z-index:1;
+    background:linear-gradient(180deg, var(--bg-deep) 0%, rgba(26,35,97,.35) 30%, rgba(16,20,58,.55) 65%, var(--bg-deep) 100%);
+  }
+
+  .eyebrow{
+    position:relative; z-index:5;
+    font-size:.78rem; letter-spacing:.35em; color:var(--moss);
+    text-transform:uppercase; margin-bottom:2.2rem;
+    display:flex; align-items:center; gap:.7em;
+  }
+  .eyebrow .line{width:34px; height:1px; background:var(--moss-dim);}
+
+  .title{
+    position:relative; z-index:5;
+    font-family:'Aref Ruqaa', serif;
+    font-weight:700;
+    line-height:1.5;
+    margin:0;
+  }
+  .title .row{display:block; overflow:visible;}
+  .title .row:first-child{
+    font-size:clamp(2.6rem, 8vw, 5.2rem);
+    color:var(--cream);
+    text-shadow:0 0 40px rgba(216,174,108,.25);
+  }
+  .title .row:last-child{
+    font-size:clamp(2.2rem, 7vw, 4.4rem);
+    background:linear-gradient(95deg, var(--blush) 10%, var(--gold) 55%, var(--blush-soft) 90%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-top:.15em;
+  }
+  .word{
+    display:inline-block;
+    opacity:0; transform:translateY(.6em) scale(.7) rotate(-4deg);
+    animation:bloom .9s cubic-bezier(.2,.9,.25,1.2) forwards;
+  }
+  @keyframes bloom{
+    to{opacity:1; transform:translateY(0) scale(1) rotate(0deg);}
+  }
+
+  .subtitle{
+    position:relative; z-index:5;
+    max-width:36em; margin:2rem auto 0; color:var(--moss);
+    font-size:1.02rem; line-height:2; font-weight:400;
+    opacity:0; animation:rise 1s ease forwards; animation-delay:1.6s;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+
+  .cta{
+    position:relative; z-index:5;
+    margin-top:2.6rem;
+    display:inline-flex; align-items:center; gap:.7em;
+    padding:.95em 2.1em;
+    background:linear-gradient(100deg, var(--gold-dim), var(--gold));
+    color:#1b1208; font-weight:800; font-size:1rem;
+    border-radius:100px; text-decoration:none;
+    box-shadow:0 14px 34px -10px rgba(216,174,108,.55);
+    opacity:0; animation:rise 1s ease forwards; animation-delay:1.95s;
+    transition:transform .35s ease, box-shadow .35s ease;
+  }
+  .cta:hover{ transform:translateY(-3px) scale(1.03); box-shadow:0 18px 44px -8px rgba(216,174,108,.7); }
+  .cta svg{width:20px; height:20px; flex:none;}
+
+  .scroll-cue{
+    position:relative; z-index:5; margin-top:4.2rem;
+    color:var(--moss-dim); font-size:.7rem; letter-spacing:.25em;
+    display:flex; flex-direction:column; align-items:center; gap:.5em;
+    opacity:0; animation:rise 1s ease forwards; animation-delay:2.3s;
+  }
+  .scroll-cue .stem{width:1px; height:34px; background:linear-gradient(var(--gold), transparent); animation:stem 2s ease-in-out infinite;}
+  @keyframes stem{0%,100%{opacity:.3;} 50%{opacity:1;}}
+
+  /* ---------- butterflies ---------- */
+  .butterfly{ position:absolute; z-index:6; pointer-events:none; }
+  .butterfly svg{ display:block; overflow:visible; }
+  .bf-corner-tl{ top:4%; left:5%; width:64px; animation:patrol-a 13s ease-in-out infinite; }
+  .bf-corner-tr{ top:7%; right:6%; width:52px; animation:patrol-b 15s ease-in-out infinite; }
+  .bf-corner-tr2{ top:16%; right:14%; width:34px; animation:patrol-a 10s ease-in-out infinite reverse; opacity:.85;}
+  @keyframes patrol-a{
+    0%{transform:translate(0,0) rotate(0deg);}
+    25%{transform:translate(18px,-14px) rotate(6deg);}
+    50%{transform:translate(4px,10px) rotate(-4deg);}
+    75%{transform:translate(-14px,-6px) rotate(-8deg);}
+    100%{transform:translate(0,0) rotate(0deg);}
+  }
+  @keyframes patrol-b{
+    0%{transform:translate(0,0) rotate(0deg);}
+    30%{transform:translate(-20px,12px) rotate(-6deg);}
+    60%{transform:translate(-6px,-14px) rotate(5deg);}
+    100%{transform:translate(0,0) rotate(0deg);}
+  }
+  .wing{ transform-origin:2px 4px; animation:flap 340ms ease-in-out infinite alternate; }
+  .wing.right{ animation-delay:0ms; }
+  .wing.left{ animation-delay:0ms; transform-origin:-2px 4px; }
+  @keyframes flap{ from{transform:scaleX(1);} to{transform:scaleX(.55);} }
+
+  /* ---------- filigree corner ornaments ---------- */
+  .filigree{ position:absolute; z-index:5; pointer-events:none; opacity:.55; }
+  .filigree.fl-bl{ bottom:2%; left:3%; width:120px; transform:scaleX(-1); }
+  .filigree.fl-br{ bottom:2%; right:3%; width:120px; }
+  .filigree path{ fill:none; stroke:url(#fgGrad); stroke-width:1.4; stroke-linecap:round; }
+  .filigree .heart{ fill:var(--blush); stroke:none; }
+
+  /* ---------- flower divider ---------- */
+  .divider{
+    display:flex; align-items:center; justify-content:center; gap:1.1em;
+    margin:0 auto; padding:0 6vw; max-width:640px;
+  }
+  .divider .bar{flex:1; height:1px; background:linear-gradient(90deg, transparent, var(--panel-edge), transparent);}
+  .flower{width:22px; height:22px; flex:none;}
+
+  /* ---------- gallery ---------- */
+  .gallery{ padding:7vh 6vw 10vh; }
+  .gallery-head{ text-align:center; margin-bottom:4vh; }
+  .gallery-head .eyebrow{ justify-content:center; }
+  .gallery-head h2{
+    font-family:'Aref Ruqaa', serif; font-weight:700;
+    font-size:clamp(1.8rem,4.2vw,2.6rem); margin:.4em 0 .3em; color:var(--blush-soft);
+  }
+  .gallery-head p{ color:var(--moss); max-width:34em; margin:0 auto; line-height:1.9; font-size:.98rem;}
+
+  .grid{
+    display:grid; gap:22px;
+    grid-template-columns:repeat(auto-fill, minmax(210px,1fr));
+    max-width:1180px; margin:0 auto;
+  }
+  .card{
+    position:relative; border-radius:22px; overflow:hidden;
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    box-shadow:var(--shadow);
+    aspect-ratio:9/16;
+    cursor:pointer;
+    transform:translateY(24px); opacity:0;
+    transition:transform .6s cubic-bezier(.2,.8,.25,1), box-shadow .4s ease, border-color .4s ease;
+  }
+  .card.in-view{ transform:translateY(0); opacity:1; }
+  .card:hover{ transform:translateY(-6px); border-color:var(--blush); box-shadow:0 26px 60px -16px rgba(246,185,214,.35); }
+
+  .card video, .card img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .card video{ position:absolute; inset:0; }
+
+  .card-shade{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(15,26,19,0) 45%, rgba(15,26,19,.85) 100%);
+    pointer-events:none;
+  }
+  .card-label{
+    position:absolute; right:16px; bottom:14px; left:16px; z-index:2;
+    font-size:.92rem; font-weight:700; color:var(--cream);
+    text-align:right; line-height:1.5;
+    text-shadow:0 2px 10px rgba(0,0,0,.5);
+  }
+  .card-play{
+    position:absolute; inset:0; margin:auto; width:56px; height:56px; z-index:3;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(21,34,25,.55); backdrop-filter:blur(3px);
+    border:1px solid rgba(246,239,226,.35); border-radius:50%;
+    transition:opacity .3s ease, transform .3s ease;
+  }
+  .card.playing .card-play{ opacity:0; transform:scale(.7); pointer-events:none; }
+  .card-play svg{ width:20px; height:20px; fill:var(--cream); margin-inline-start:3px; }
+
+  /* ---------- closing CTA ---------- */
+  .closing{
+    padding:9vh 6vw 12vh; text-align:center; position:relative;
+  }
+  .closing::before{
+    content:''; position:absolute; inset:0; z-index:0;
+    background:radial-gradient(ellipse at 50% 100%, rgba(216,174,108,.08), transparent 60%);
+  }
+  .closing-inner{ position:relative; z-index:1; max-width:36em; margin:0 auto;}
+  .closing h3{
+    font-family:'Aref Ruqaa', serif; font-weight:700; color:var(--cream);
+    font-size:clamp(1.6rem,4vw,2.3rem); line-height:1.8; margin-bottom:1.2rem;
+  }
+  .closing p{ color:var(--moss); line-height:2; margin-bottom:2rem; }
+
+  footer{
+    text-align:center; padding:3rem 6vw; color:var(--moss-dim); font-size:.82rem;
+    border-top:1px solid var(--panel-edge);
+  }
+  footer .handle{ color:var(--gold); font-weight:700; }
+
+  @media (max-width:560px){
+    .bf-corner-tl{ width:46px; }
+    .bf-corner-tr{ width:38px; }
+    .bf-corner-tr2{ width:26px; }
+    .grid{ grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+    .petals{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="petals" id="petals"></div>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="hero-bg-blur"></div>
+  <div class="hero-bg-fade"><img src="assets/bg-fade.png" alt=""></div>
+  <div class="hero-scrim"></div>
+
+  <div class="butterfly bf-corner-tl">
+    <svg viewBox="0 0 40 40" fill="none">
+      <g>
+        <path class="wing right" d="M20 18 C 30 4, 40 8, 36 20 C 33 28, 24 26, 20 18 Z" fill="url(#gTL)"/>
+        <path class="wing left" d="M20 18 C 10 4, 0 8, 4 20 C 7 28, 16 26, 20 18 Z" fill="url(#gTL)"/>
+        <path class="wing right" d="M20 20 C 27 22, 33 30, 27 34 C 22 37, 19 27, 20 20 Z" fill="url(#gTL2)"/>
+        <path class="wing left" d="M20 20 C 13 22, 7 30, 13 34 C 18 37, 21 27, 20 20 Z" fill="url(#gTL2)"/>
+        <line x1="20" y1="14" x2="20" y2="30" stroke="#2a4534" stroke-width="1.6" stroke-linecap="round"/>
+      </g>
+      <defs>
+        <linearGradient id="gTL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6b9d6"/><stop offset="1" stop-color="#e3b876"/></linearGradient>
+        <linearGradient id="gTL2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3b876"/><stop offset="1" stop-color="#7580c4"/></linearGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="butterfly bf-corner-tr">
+    <svg viewBox="0 0 40 40" fill="none">
+      <path class="wing right" d="M20 18 C 30 4, 40 8, 36 20 C 33 28, 24 26, 20 18 Z" fill="url(#gTR)"/>
+      <path class="wing left" d="M20 18 C 10 4, 0 8, 4 20 C 7 28, 16 26, 20 18 Z" fill="url(#gTR)"/>
+      <path class="wing right" d="M20 20 C 27 22, 33 30, 27 34 C 22 37, 19 27, 20 20 Z" fill="url(#gTR2)"/>
+      <path class="wing left" d="M20 20 C 13 22, 7 30, 13 34 C 18 37, 21 27, 20 20 Z" fill="url(#gTR2)"/>
+      <line x1="20" y1="14" x2="20" y2="30" stroke="#2a4534" stroke-width="1.6" stroke-linecap="round"/>
+      <defs>
+        <linearGradient id="gTR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7580c4"/><stop offset="1" stop-color="#e3b876"/></linearGradient>
+        <linearGradient id="gTR2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3b876"/><stop offset="1" stop-color="#f6b9d6"/></linearGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="butterfly bf-corner-tr2">
+    <svg viewBox="0 0 40 40" fill="none">
+      <path class="wing right" d="M20 18 C 30 4, 40 8, 36 20 C 33 28, 24 26, 20 18 Z" fill="#f0b9cf"/>
+      <path class="wing left" d="M20 18 C 10 4, 0 8, 4 20 C 7 28, 16 26, 20 18 Z" fill="#f0b9cf"/>
+      <line x1="20" y1="14" x2="20" y2="26" stroke="#2a4534" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="fgGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#e3b876"/>
+        <stop offset="1" stop-color="#f6b9d6"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <svg class="filigree fl-bl" viewBox="0 0 140 90" fill="none">
+    <path d="M4 86 C 20 70, 18 40, 40 34 C 58 29, 60 12, 78 8"/>
+    <path d="M4 86 C 24 82, 34 66, 30 50"/>
+    <path d="M40 34 C 46 44, 60 46, 66 38"/>
+    <circle cx="78" cy="8" r="3" fill="#e3b876"/>
+    <path class="heart" d="M22 60c-2.4-2.6-6.4-2.4-7.6.6-1.2 2.8.8 5.4 7.6 10.6 6.8-5.2 8.8-7.8 7.6-10.6-1.2-3-5.2-3.2-7.6-.6z"/>
+  </svg>
+  <svg class="filigree fl-br" viewBox="0 0 140 90" fill="none">
+    <path d="M4 86 C 20 70, 18 40, 40 34 C 58 29, 60 12, 78 8"/>
+    <path d="M4 86 C 24 82, 34 66, 30 50"/>
+    <path d="M40 34 C 46 44, 60 46, 66 38"/>
+    <circle cx="78" cy="8" r="3" fill="#f6b9d6"/>
+    <path class="heart" d="M22 60c-2.4-2.6-6.4-2.4-7.6.6-1.2 2.8.8 5.4 7.6 10.6 6.8-5.2 8.8-7.8 7.6-10.6-1.2-3-5.2-3.2-7.6-.6z"/>
+  </svg>
+
+  <div class="eyebrow"><span class="line"></span> شوقٌ يليق بالورد <span class="line"></span></div>
+
+  <h1 class="title">
+    <span class="row" id="row1" aria-label="كُلُّ مُرٍّ سَيَمُرُّ"></span>
+    <span class="row" id="row2" aria-label="غَدًا أَجْمَل"></span>
+  </h1>
+
+  <p class="subtitle">
+    في كل حنينٍ نبتةُ وردٍ تنتظر الصفاء لتتفتّح… هنا أنوثةٌ هادئة، وشوقٌ يروي حكايته بصمت، وروحٌ تصفو كلّما مرّت لحظةٌ صادقة تُشبهها.
+  </p>
+
+  <a class="cta" href="https://www.tiktok.com/@hanoflora" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M16.6 5.82c-.9-.79-1.47-1.94-1.47-3.22h-3.02v14.02c0 1.6-1.3 2.9-2.9 2.9s-2.9-1.3-2.9-2.9 1.3-2.9 2.9-2.9c.3 0 .58.05.85.13V10.7a5.9 5.9 0 0 0-.85-.06c-3.3 0-5.98 2.68-5.98 5.98S6.88 22.6 10.18 22.6s5.98-2.68 5.98-5.98V9.4a7.6 7.6 0 0 0 4.44 1.43V7.8c-1.4 0-2.65-.5-3.6-1.34-.16-.14-.28-.42-.4-.64Z"/></svg>
+    تابعوني على تيك توك — hanoflora@
+  </a>
+
+  <div class="scroll-cue">
+    <span>مرّرْ لتشاهد اللحظات</span>
+    <span class="stem"></span>
+  </div>
+</section>
+
+<!-- ================= DIVIDER ================= -->
+<div class="divider">
+  <span class="bar"></span>
+  <svg class="flower" viewBox="0 0 24 24" style="width:16px;height:16px">
+    <path fill="#f6b9d6" d="M12 21s-7.5-4.7-10-9.3C.5 8.2 2.4 4.6 5.9 4.1c2-.3 3.9.6 5 2.2 1.1-1.6 3-2.5 5-2.2 3.5.5 5.4 4.1 3.9 7.6C19.5 16.3 12 21 12 21z"/>
+  </svg>
+  <svg class="flower" viewBox="0 0 24 24">
+    <g fill="#d8ae6c">
+      <ellipse cx="12" cy="6" rx="3.4" ry="5" transform="rotate(0 12 12)"/>
+      <ellipse cx="12" cy="6" rx="3.4" ry="5" transform="rotate(72 12 12)"/>
+      <ellipse cx="12" cy="6" rx="3.4" ry="5" transform="rotate(144 12 12)"/>
+      <ellipse cx="12" cy="6" rx="3.4" ry="5" transform="rotate(216 12 12)"/>
+      <ellipse cx="12" cy="6" rx="3.4" ry="5" transform="rotate(288 12 12)"/>
+    </g>
+    <circle cx="12" cy="12" r="2.6" fill="#f0b9cf"/>
+  </svg>
+  <svg class="flower" viewBox="0 0 24 24" style="width:16px;height:16px">
+    <path fill="#f6b9d6" d="M12 21s-7.5-4.7-10-9.3C.5 8.2 2.4 4.6 5.9 4.1c2-.3 3.9.6 5 2.2 1.1-1.6 3-2.5 5-2.2 3.5.5 5.4 4.1 3.9 7.6C19.5 16.3 12 21 12 21z"/>
+  </svg>
+  <span class="bar"></span>
+</div>
+
+<!-- ================= GALLERY ================= -->
+<section class="gallery">
+  <div class="gallery-head">
+    <div class="eyebrow"><span class="line"></span> لحظات <span class="line"></span></div>
+    <h2>مقتطفات من الرحلة</h2>
+    <p>كل لقطة هنا ثانية من الحياة، احتُفظ بها لأنها تستحق أن تُروى. اضغطي على أي لقطة لتشغيلها.</p>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</section>
+
+<!-- ================= CLOSING ================= -->
+<section class="closing">
+  <div class="closing-inner">
+    <h3>وغدًا... سيكون أجمل، لا محالة.</h3>
+    <p>تابعوا التفاصيل اليومية، والحكايات القادمة، على حساب التيك توك.</p>
+    <a class="cta" href="https://www.tiktok.com/@hanoflora" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M16.6 5.82c-.9-.79-1.47-1.94-1.47-3.22h-3.02v14.02c0 1.6-1.3 2.9-2.9 2.9s-2.9-1.3-2.9-2.9 1.3-2.9 2.9-2.9c.3 0 .58.05.85.13V10.7a5.9 5.9 0 0 0-.85-.06c-3.3 0-5.98 2.68-5.98 5.98S6.88 22.6 10.18 22.6s5.98-2.68 5.98-5.98V9.4a7.6 7.6 0 0 0 4.44 1.43V7.8c-1.4 0-2.65-.5-3.6-1.34-.16-.14-.28-.42-.4-.64Z"/></svg>
+      hanoflora@
+    </a>
+  </div>
+</section>
+
+<footer>
+  صُنع بحبّ لكل من يمرّ من هنا 🌸 — <span class="handle">@hanoflora</span>
+</footer>
+
+<script>
+/* ---------- بناء العنوان حرفًا حرفًا ---------- */
+function buildRow(el, text, startDelay){
+  const words = text.split(' ');
+  let delay = startDelay;
+  words.forEach((w, i)=>{
+    const span = document.createElement('span');
+    span.className='word';
+    span.textContent = w;
+    span.style.animationDelay = delay+'ms';
+    el.appendChild(span);
+    if(i < words.length-1){
+      el.appendChild(document.createTextNode('\u00A0'));
+    }
+    delay += 220;
+  });
+  return delay;
+}
+const d1 = buildRow(document.getElementById('row1'), 'كُلُّ مُرٍّ سَيَمُرُّ', 150);
+buildRow(document.getElementById('row2'), 'غَدًا أَجْمَل', d1+250);
+
+/* ---------- بتلات متطايرة ---------- */
+const petalHost = document.getElementById('petals');
+const PETAL_COUNT = 16;
+for(let i=0;i<PETAL_COUNT;i++){
+  const p = document.createElement('div');
+  p.className='petal';
+  const left = Math.random()*100;
+  const dur = 10+Math.random()*10;
+  const delay = Math.random()*-20;
+  const drift = (Math.random()*80-40)+'px';
+  const scale = .6+Math.random()*.9;
+  p.style.left = left+'vw';
+  p.style.setProperty('--drift', drift);
+  p.style.animationDuration = dur+'s';
+  p.style.animationDelay = delay+'s';
+  p.style.transform = `scale(${scale})`;
+  petalHost.appendChild(p);
+}
+
+/* ---------- ومضات صفاء (نجيمات ذهبية) ---------- */
+const SPARK_COUNT = 22;
+for(let i=0;i<SPARK_COUNT;i++){
+  const s = document.createElement('div');
+  s.className='sparkle';
+  const size = 2+Math.random()*3;
+  s.style.width = size+'px';
+  s.style.height = size+'px';
+  s.style.left = (Math.random()*100)+'vw';
+  s.style.top = (Math.random()*100)+'vh';
+  s.style.animationDuration = (2.5+Math.random()*3)+'s';
+  s.style.animationDelay = (Math.random()*4)+'s';
+  petalHost.appendChild(s);
+}
+
+/* ---------- بيانات المعرض ---------- */
+const items = [
+  {v:'assets/videos/v1.mp4',  t:'assets/thumbs/t1.jpg',  label:'لحظة صفاء'},
+  {v:'assets/videos/v2.mp4',  t:'assets/thumbs/t2.jpg',  label:'خطوة نحو النور'},
+  {v:'assets/videos/v3.mp4',  t:'assets/thumbs/t3.jpg',  label:'هدوء بين الأشجار'},
+  {v:'assets/videos/v4.mp4',  t:'assets/thumbs/t4.jpg',  label:'نسمة أمل'},
+  {v:'assets/videos/v5.mp4',  t:'assets/thumbs/t5.jpg',  label:'ابتسامة عابرة'},
+  {v:'assets/videos/v6.mp4',  t:'assets/thumbs/t6.jpg',  label:'حكاية طويلة'},
+  {v:'assets/videos/v7.mp4',  t:'assets/thumbs/t7.jpg',  label:'دفء الذكرى'},
+  {v:'assets/videos/v8.mp4',  t:'assets/thumbs/t8.jpg',  label:'مساحة للتنفس'},
+  {v:'assets/videos/v9.mp4',  t:'assets/thumbs/t9.jpg',  label:'قرب الطبيعة'},
+  {v:'assets/videos/v10.mp4', t:'assets/thumbs/t10.jpg', label:'وعدٌ بالغد'}
+];
+
+const grid = document.getElementById('grid');
+items.forEach((it, idx)=>{
+  const card = document.createElement('div');
+  card.className='card';
+  card.style.transitionDelay = (idx*40)+'ms';
+
+  const video = document.createElement('video');
+  video.src = it.v;
+  video.poster = it.t;
+  video.muted = false;
+  video.loop = true;
+  video.playsInline = true;
+  video.preload = 'none';
+
+  const shade = document.createElement('div');
+  shade.className='card-shade';
+
+  const label = document.createElement('div');
+  label.className='card-label';
+  label.textContent = it.label;
+
+  const play = document.createElement('div');
+  play.className='card-play';
+  play.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+
+  card.appendChild(video);
+  card.appendChild(shade);
+  card.appendChild(label);
+  card.appendChild(play);
+  grid.appendChild(card);
+
+  card.addEventListener('click', ()=>{
+    if(video.paused){
+      document.querySelectorAll('.card video').forEach(v=>{ if(v!==video){ v.pause(); v.parentElement.classList.remove('playing'); }});
+      video.play();
+      card.classList.add('playing');
+    } else {
+      video.pause();
+      card.classList.remove('playing');
+    }
+  });
+});
+
+/* ---------- ظهور البطاقات عند التمرير ---------- */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in-view'); } });
+},{threshold:.15});
+document.querySelectorAll('.card').forEach(c=>io.observe(c));
+</script>
+</body>
+</html>
